@@ -4,6 +4,6 @@ import { CoverletterService } from './coverletter.service';
 
 @Module({
   controllers: [CoverletterController],
-  providers: [CoverletterService]
+  providers: [CoverletterService],
 })
 export class CoverletterModule {}
