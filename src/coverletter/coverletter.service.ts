@@ -57,8 +57,9 @@ export class CoverletterService {
     const response = await axios.post(
       'https://api.cohere.ai/v1/generate',
       {
+        model: 'command-medium-nightly',
         prompt: prompt,
-        max_tokens: 500,
+        max_tokens: 400,
         temperature: 0.7,
       },
       {
