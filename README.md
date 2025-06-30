@@ -80,8 +80,7 @@ pnpm start:prod
 
 - **Method:** `POST`
 - **Endpoint:** `http://localhost:3000/cover-letter/upload`
-- **Form-data**
-- file: .pdf, .docx, or .txt
+- **Form-data**:file: .pdf, .docx, or .txt
 
 ## How AI is Used
 
