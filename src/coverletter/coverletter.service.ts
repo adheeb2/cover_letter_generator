@@ -14,14 +14,14 @@ export class CoverletterService {
   ): Promise<string> {
     const apiKey = process.env.COHERE_API_KEY;
 
-    const message = `Write a ${tone} cover letter for a job role as ${role} with the following skills: ${skills.join('')}. Make it concise and professional`;
+    const prompt = `Write a ${tone} cover letter for a job role as ${role} with the following skills: ${skills.join('')}. Make it concise and professional`;
     const response = await axios.post(
       'https://api.cohere.ai/v1/generate',
       {
-        model: 'command-medium-nightly',
-        prompt: message,
-        max_tokens: 350,
-        temperature: 0.6,
+        // model: 'command-medium-nightly',
+        prompt: prompt,
+        max_tokens: 500,
+        temperature: 0.7,
       },
       {
         headers: {
