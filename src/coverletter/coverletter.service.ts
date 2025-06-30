@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import * as fs from 'fs/promises';
+import * as pdfParse from 'pdf-parse';
+import * as mammoth from 'mammoth';
+import * as path from 'path';
 
 @Injectable()
 export class CoverletterService {
@@ -12,10 +16,48 @@ export class CoverletterService {
 
     const message = `Write a ${tone} cover letter for a job role as ${role} with the following skills: ${skills.join('')}. Make it concise and professional`;
     const response = await axios.post(
-      'https://api.cohere.ai/v1/chat', //showed v1/generate was issue
+      'https://api.cohere.ai/v1/generate',
       {
-        model: 'command-r-plus', //showed model issue
-        message: message, //issue here when prompt used
+        model: 'command-medium-nightly',
+        prompt: message,
+        max_tokens: 350,
+        temperature: 0.6,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return response.data.generations[0].text.trim();
+  }
+  async extractTextFromFile(file: Express.Multer.File): Promise<string> {
+    const filePath = file.path;
+    const ext = path.extname(file.originalname).toLowerCase();
+
+    if (ext === '.txt') {
+      return await fs.readFile(filePath, 'utf-8');
+    } else if (ext === '.pdf') {
+      const data = await fs.readFile(filePath);
+      const result = await pdfParse(data);
+      return result.text;
+    } else if (ext === '.docx') {
+      const data = await fs.readFile(filePath);
+      const result = await mammoth.extractRawText({ buffer: data });
+      return result.value;
+    } else {
+      throw new Error('Unsupported file type');
+    }
+  }
+  async generateCoverLetterFromText(text: string): Promise<string> {
+    const apiKey = process.env.COHERE_API_KEY;
+    const prompt = `Based on the following resume or content, write a concise, professional cover letter:\n\n${text}`;
+
+    const response = await axios.post(
+      'https://api.cohere.ai/v1/generate',
+      {
+        prompt: prompt,
         max_tokens: 500,
         temperature: 0.7,
       },
@@ -26,6 +68,6 @@ export class CoverletterService {
         },
       },
     );
-    return response.data.text.trim(); //issue here when generate used
+    return response.data.generations[0].text.trim();
   }
 }
